@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blush — Date Coordination Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf9f7;
+  --surface: #ffffff;
+  --surface2: #f5f3ef;
+  --border: #e8e4dd;
+  --border2: #d8d2c8;
+  --text: #1a1714;
+  --text2: #5a5550;
+  --text3: #9a938a;
+  --rose: #c8435a;
+  --rose-light: #fdf0f2;
+  --rose-border: #f0c4cc;
+  --gold: #b8862a;
+  --gold-light: #fdf8ee;
+  --green: #2d7a5a;
+  --green-light: #edf7f2;
+  --green-border: #b8dece;
+  --blue: #2855a0;
+  --blue-light: #eef2fb;
+  --blue-border: #b8c8ed;
+  --purple: #6b3fa0;
+  --purple-light: #f5f0fb;
+  --amber-text: #7a4a10;
+  --amber-bg: #fef8ed;
+  --danger: #c62828;
+  --danger-bg: #fff5f5;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-brand {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--rose);
+  letter-spacing: -0.3px;
+}
+.header-brand span { color: var(--text3); font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 400; margin-left: 10px; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+
+/* MAIN LAYOUT */
+.layout { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 60px); }
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
+  position: sticky;
+  top: 60px;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-title { font-weight: 600; font-size: 13px; color: var(--text2); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 12px; }
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+.search-box input {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text);
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+}
+.search-box input::placeholder { color: var(--text3); }
+.search-icon { color: var(--text3); font-size: 14px; flex-shrink: 0; }
+
+.client-list { flex: 1; overflow-y: auto; padding: 8px; }
+.client-list::-webkit-scrollbar { width: 4px; }
+.client-list::-webkit-scrollbar-track { background: transparent; }
+.client-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.client-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .15s;
+  border: 1px solid transparent;
+}
+.client-item:hover { background: var(--surface2); }
+.client-item.active { background: var(--rose-light); border-color: var(--rose-border); }
+.client-item.active .ci-name { color: var(--rose); }
+
+.ci-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+.ci-meta { flex: 1; min-width: 0; }
+.ci-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ci-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.ci-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px;
+  flex-shrink: 0;
+}
+.badge-active { background: var(--green-light); color: var(--green); }
+.badge-churned { background: var(--danger-bg); color: var(--danger); }
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* ADD BUTTON */
+.btn-add {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: var(--rose);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+}
+.btn-add:hover { opacity: .9; }
+.btn-add:active { transform: scale(.98); }
+
+/* MAIN CONTENT */
+.main { padding: 32px; overflow-y: auto; }
+
+/* STATS BAR */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.stat-val { font-size: 26px; font-weight: 600; font-family: 'DM Serif Display', serif; }
+
+/* EMPTY STATE */
+.empty-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-main h2 { font-family: 'DM Serif Display', serif; font-size: 24px; margin-bottom: 8px; }
+.empty-main p { color: var(--text2); font-size: 14px; max-width: 360px; line-height: 1.6; }
+
+/* CLIENT DETAIL */
+.client-detail { animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.detail-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 600; flex-shrink: 0;
+}
+.detail-meta { flex: 1; }
+.detail-name { font-family: 'DM Serif Display', serif; font-size: 26px; line-height: 1.1; margin-bottom: 4px; }
+.detail-sub { font-size: 13px; color: var(--text2); }
+.detail-actions { display: flex; gap: 8px; }
+.btn-sm {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text2);
+  transition: all .15s;
+}
+.btn-sm:hover { background: var(--surface2); border-color: var(--border2); }
+.btn-sm.primary { background: var(--rose); color: white; border-color: var(--rose); }
+.btn-sm.primary:hover { opacity: .9; }
+
+.info-banner {
+  background: var(--blue-light);
+  border: 1px solid var(--blue-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--blue);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.alert-banner {
+  background: var(--danger-bg);
+  border: 1px solid #f0b8b8;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--danger);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* MATCHES */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: 10px;
+}
+.matches-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+.match-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--text2);
+}
+.match-chip.great { border-color: var(--green-border); color: var(--green); font-weight: 600; }
+.match-chip.pending { border-color: #ffe082; color: #8a6200; }
+.match-chip.dropped { border-color: #f0b8b8; color: var(--danger); text-decoration: line-through; }
+.match-chip.confirmed { border-color: var(--blue-border); color: var(--blue); }
+
+/* MOMENTS */
+.moment-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.moment-card:hover { border-color: var(--border2); }
+.moment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface2);
+  cursor: pointer;
+  user-select: none;
+}
+.moment-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--blue-light); color: var(--blue);
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.moment-title { font-size: 13px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.moment-date { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+.moment-chevron { font-size: 11px; color: var(--text3); transition: transform .2s; flex-shrink: 0; }
+.moment-chevron.open { transform: rotate(90deg); }
+
+.moment-body { padding: 14px; border-top: 1px solid var(--border); }
+
+/* TABS */
+.tab-row { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text2);
+  transition: all .15s;
+}
+.tab-btn:hover { background: var(--surface2); }
+.tab-btn.active { background: var(--blue-light); color: var(--blue); border-color: var(--blue-border); }
+
+/* CONVERSATION BUBBLES */
+.msg-thread { display: flex; flex-direction: column; gap: 8px; }
+.msg-wrap { display: flex; flex-direction: column; }
+.msg-label { font-size: 10px; font-weight: 600; opacity: .5; padding: 0 4px; margin-bottom: 2px; }
+.msg-bubble { max-width: 80%; padding: 9px 12px; border-radius: 11px; font-size: 12px; line-height: 1.6; }
+.msg-client { align-self: flex-end; background: #d4f0c8; color: #1a3d12; border-radius: 11px 11px 2px 11px; }
+.msg-mm { align-self: flex-start; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 11px 11px 11px 2px; }
+
+/* BEST REPLY */
+.reply-box {
+  background: #f2fbf5;
+  border-left: 3px solid #4caf50;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #1a3d1a;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  margin-bottom: 10px;
+}
+
+/* REASONING PILLS */
+.reasoning-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.reason-pill {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  line-height: 1.5;
+  flex: 1;
+  min-width: 130px;
+}
+.reason-pill strong { display: block; margin-bottom: 3px; font-size: 11px; }
+
+/* PERSPECTIVES */
+.persp-row { display: flex; flex-direction: column; gap: 6px; }
+.persp-item { display: flex; gap: 10px; align-items: flex-start; }
+.persp-tag {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 88px;
+  text-align: center;
+}
+.tag-client { background: var(--blue-light); color: var(--blue); }
+.tag-mm { background: var(--amber-bg); color: var(--amber-text); }
+.tag-match { background: var(--green-light); color: var(--green); }
+.tag-system { background: var(--purple-light); color: var(--purple); }
+.tag-pattern { background: var(--gold-light); color: var(--gold); }
+.persp-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+/* SCENARIOS */
+.scenario-row { display: flex; flex-direction: column; gap: 6px; }
+.scenario-item { padding: 9px 12px; border-radius: var(--radius-sm); font-size: 12px; line-height: 1.6; }
+.scenario-item strong { display: block; font-size: 11px; margin-bottom: 3px; opacity: .7; }
+.scenario-best { background: var(--green-light); color: #1a4d30; border-left: 3px solid var(--green); }
+.scenario-worst { background: var(--danger-bg); color: #7a1010; border-left: 3px solid var(--danger); }
+.scenario-alt { background: var(--blue-light); color: #1a2a60; border-left: 3px solid var(--blue); }
+
+/* COMPARE PANEL */
+.compare-panel {
+  background: var(--purple-light);
+  border: 1px solid #c8a8e8;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.compare-panel h3 { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--purple); margin-bottom: 14px; }
+.compare-section { margin-bottom: 14px; }
+.compare-section h4 { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.pattern-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 6px; }
+.pattern-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.pattern-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.risk-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.risk-chip { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.risk-high { background: var(--danger-bg); color: var(--danger); }
+.risk-med { background: var(--amber-bg); color: var(--amber-text); }
+.risk-low { background: var(--green-light); color: var(--green); }
+.rec-list { display: flex; flex-direction: column; gap: 5px; }
+.rec-item { font-size: 12px; color: var(--text2); padding: 7px 12px; background: white; border-radius: var(--radius-sm); border-left: 3px solid var(--purple); line-height: 1.6; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 640px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transform: scale(.95);
+  transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-family: 'DM Serif Display', serif; font-size: 20px; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text3); line-height: 1; padding: 4px; }
+.modal-body { padding: 20px 24px; }
+.modal-body label { font-size: 12px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.modal-body textarea {
+  width: 100%;
+  height: 220px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--surface2);
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+  transition: border-color .15s;
+}
+.modal-body textarea:focus { border-color: var(--rose); }
+.modal-hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* LOADING STATE */
+.analyzing-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px;
+  gap: 16px;
+  text-align: center;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--rose);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.analyzing-text { font-size: 14px; color: var(--text2); font-weight: 500; }
+.analyzing-sub { font-size: 12px; color: var(--text3); }
+
+/* AVATAR COLORS */
+.av-rose { background: #fce4ec; color: #880e4f; }
+.av-amber { background: #fff8e1; color: #e65100; }
+.av-teal { background: #e0f2f1; color: #00695c; }
+.av-blue { background: #e3f2fd; color: #0d47a1; }
+.av-green { background: #e8f5e9; color: #2e7d32; }
+.av-purple { background: #ede7f6; color: #4527a0; }
+.av-coral { background: #fbe9e7; color: #bf360c; }
+.av-indigo { background: #e8eaf6; color: #283593; }
+.av-brown { background: #efebe9; color: #4e342e; }
+.av-slate { background: #eceff1; color: #37474f; }
+.av-gold { background: #fff9c4; color: #f57f17; }
+.av-pink { background: #fce4ec; color: #c2185b; }
+.av-cyan { background: #e0f7fa; color: #006064; }
+.av-lime { background: #f9fbe7; color: #558b2f; }
+
+mark { background: #fff176; border-radius: 2px; }
+
+/* API KEY SETUP */
+.setup-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+.setup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+.setup-logo { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--rose); margin-bottom: 8px; }
+.setup-tagline { font-size: 13px; color: var(--text3); margin-bottom: 28px; }
+.setup-card h2 { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 8px; }
+.setup-card p { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
+.setup-input-wrap { position: relative; margin-bottom: 12px; }
+.setup-input-wrap input {
+  width: 100%;
+  padding: 12px 44px 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--surface2);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+.setup-input-wrap input:focus { border-color: var(--rose); }
+.setup-toggle-vis {
+  position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  font-size: 14px; color: var(--text3);
+}
+.setup-hint { font-size: 11px; color: var(--text3); margin-bottom: 20px; text-align: left; line-height: 1.5; }
+.setup-hint a { color: var(--rose); text-decoration: none; }
+.setup-hint a:hover { text-decoration: underline; }
+.btn-setup {
+  width: 100%;
+  padding: 12px;
+  background: var(--rose);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-setup:hover { opacity: .9; }
+.btn-setup:disabled { opacity: .5; cursor: not-allowed; }
+.api-key-indicator {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text3); cursor: pointer;
+  padding: 4px 8px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  transition: all .15s;
+}
+.api-key-indicator:hover { border-color: var(--border2); }
+.api-key-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+.btn-compare-top {
+  padding: 8px 16px;
+  border: 1px solid var(--purple);
+  border-radius: var(--radius-sm);
+  background: var(--purple-light);
+  color: var(--purple);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-compare-top:hover { background: var(--purple); color: white; }
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { height: auto; position: static; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- API KEY SETUP SCREEN -->
+<div class="setup-screen" id="setupScreen">
+  <div class="setup-card">
+    <div class="setup-logo">🌹 Blush</div>
+    <div class="setup-tagline">Date Coordination Hub</div>
+    <h2>Enter your Anthropic API key</h2>
+    <p>This app uses Claude AI to analyze conversation threads. Your key is stored locally in your browser and never sent anywhere except Anthropic's API.</p>
+    <div class="setup-input-wrap">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" oninput="checkKeyInput()">
+      <button class="setup-toggle-vis" onclick="toggleKeyVisibility()" title="Show/hide key">👁</button>
+    </div>
+    <div class="setup-hint">
+      Get your API key from <a href="https://console.anthropic.com/keys" target="_blank">console.anthropic.com/keys</a>. 
+      It starts with <code>sk-ant-</code>. Your key is saved in localStorage so you only need to enter it once.
+    </div>
+    <button class="btn-setup" id="setupBtn" onclick="saveApiKey()" disabled>Continue →</button>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-brand">
+    Blush <span>Date Coordination Hub</span>
+  </div>
+  <div class="header-actions">
+    <div class="api-key-indicator" onclick="resetApiKey()" title="Click to change API key">
+      <div class="api-key-dot"></div>
+      API key set
+    </div>
+    <button class="btn-compare-top" onclick="toggleCompare()" id="compareBtn">Compare clients ↗</button>
+    <button class="btn-sm primary" onclick="openModal()">+ Add client</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Clients</div>
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" placeholder="Search clients, matches…" oninput="doSearch(this.value)">
+      </div>
+    </div>
+    <div class="client-list" id="clientList"></div>
+    <div class="sidebar-footer">
+      <button class="btn-add" onclick="openModal()">
+        <span>+</span> Add client from conversation
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainContent">
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-label">Total clients</div><div class="stat-val" id="statTotal">0</div></div>
+      <div class="stat-card"><div class="stat-label">Active clients</div><div class="stat-val" id="statActive">0</div></div>
+      <div class="stat-card"><div class="stat-label">Pending dates</div><div class="stat-val" id="statPending">0</div></div>
+      <div class="stat-card"><div class="stat-label">Best replies</div><div class="stat-val" id="statReplies">0</div></div>
+    </div>
+    <div id="comparePanel" style="display:none"></div>
+    <div id="detailPane">
+      <div class="empty-main">
+        <div class="empty-icon">🌹</div>
+        <h2>Welcome to the Hub</h2>
+        <p>Add your first client by pasting a conversation thread. The AI will analyze it and extract the client profile, match history, and key moments automatically.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add client from conversation</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalInner">
+      <div class="modal-body">
+        <label>Paste the full conversation thread</label>
+        <textarea id="convInput" placeholder="Paste the raw conversation here — timestamps, messages, everything. The AI will extract the client name, profile, match history, and key moments automatically.&#10;&#10;Example format:&#10;Hey [Name], welcome to Blush!&#10;2025-06-05 01:55:31 AM - Ok will send some photos over…&#10;…"></textarea>
+        <div class="modal-hint">💡 Include the full thread from start to finish. The longer the conversation, the more moments and patterns can be identified.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="closeModal()">Cancel</button>
+        <button class="btn-sm primary" onclick="analyzeConversation()">Analyze conversation →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let clients = [];
+let activeClientId = null;
+let openMoments = new Set();
+let openTabs = {};
+let searchQuery = '';
+let showCompare = false;
+
+const AVATAR_CLASSES = ['av-rose','av-amber','av-teal','av-blue','av-green','av-purple','av-coral','av-indigo','av-brown','av-slate','av-gold','av-pink','av-cyan','av-lime'];
+let avatarIndex = 0;
+
+// ─── API KEY SETUP ────────────────────────────────────────────────────────────
+function getApiKey() {
+  return localStorage.getItem('blush_hub_api_key') || '';
+}
+
+function checkKeyInput() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  document.getElementById('setupBtn').disabled = val.length < 20;
+}
+
+function toggleKeyVisibility() {
+  const inp = document.getElementById('apiKeyInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) return;
+  localStorage.setItem('blush_hub_api_key', key);
+  document.getElementById('setupScreen').style.display = 'none';
+}
+
+function resetApiKey() {
+  if (confirm('Change your API key?')) {
+    localStorage.removeItem('blush_hub_api_key');
+    document.getElementById('setupScreen').style.display = 'flex';
+  }
+}
+
+// Call Claude API — uses a CORS proxy so this works from a local HTML file
+async function callClaude(messages, maxTokens = 4000) {
+  const apiKey = getApiKey();
+  if (!apiKey) throw new Error('No API key set. Please refresh and enter your key.');
+
+  const body = JSON.stringify({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: maxTokens,
+    messages
+  });
+
+  // Try direct call first (works if opened via localhost or a server)
+  // Falls back to CORS proxy for file:// protocol
+  const isLocal = window.location.protocol === 'file:';
+
+  let response;
+  if (isLocal) {
+    // Use a CORS-anywhere proxy for local file usage
+    // The user may need to enable it at https://cors-anywhere.herokuapp.com/corsdemo
+    const proxyUrl = 'https://corsproxy.io/?';
+    const targetUrl = encodeURIComponent('https://api.anthropic.com/v1/messages');
+    response = await fetch(proxyUrl + 'https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'x-requested-with': 'XMLHttpRequest'
+      },
+      body
+    });
+  } else {
+    response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body
+    });
+  }
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${response.status}: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.content.map(b => b.text || '').join('');
+}
+
+// Check on load whether key is already saved
+window.addEventListener('load', () => {
+  if (getApiKey()) {
+    document.getElementById('setupScreen').style.display = 'none';
+  }
+  renderAll();
+});
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('convInput').value = '';
+  renderModalDefault();
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+function renderModalDefault() {
+  document.getElementById('modalInner').innerHTML = `
+    <div class="modal-body">
+      <label>Paste the full conversation thread</label>
+      <textarea id="convInput" placeholder="Paste the raw conversation here — timestamps, messages, everything. The AI will extract the client name, profile, match history, and key moments automatically."></textarea>
+      <div class="modal-hint">💡 Include the full thread from start to finish. The longer the conversation, the more moments and patterns can be identified.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm primary" onclick="analyzeConversation()">Analyze conversation →</button>
+    </div>`;
+}
+
+// ─── ANALYZE ─────────────────────────────────────────────────────────────────
+async function analyzeConversation() {
+  const text = document.getElementById('convInput').value.trim();
+  if (!text || text.length < 100) {
+    alert('Please paste a full conversation thread (at least a few messages).');
+    return;
+  }
+
+  // Show loading
+  document.getElementById('modalInner').innerHTML = `
+    <div class="analyzing-state">
+      <div class="spinner"></div>
+      <div class="analyzing-text">Analyzing conversation…</div>
+      <div class="analyzing-sub">Extracting client profile, match history, and key moments</div>
+    </div>`;
+
+  const prompt = `You are analyzing a matchmaking service conversation thread. Extract structured data and return ONLY valid JSON, no markdown, no explanation.
+
+Conversation:
+${text.substring(0, 12000)}
+
+Return this exact JSON structure:
+{
+  "name": "client first name (or full name if clear)",
+  "initials": "2-letter initials",
+  "matchmaker": "matchmaker name(s) from conversation",
+  "startDate": "when client joined e.g. Jun 5, 2025",
+  "status": "active or churned",
+  "info": "2-3 sentence profile summary: location, personality, communication style, key preferences, dealbreakers, notable context. Be specific and use actual details from the conversation.",
+  "matches": [
+    {"name": "match name", "status": "great|pending|confirmed|dropped"}
+  ],
+  "moments": [
+    {
+      "title": "Short descriptive title of what happened (the problem or key event)",
+      "date": "approximate date range e.g. Mar 11-16",
+      "thread": [
+        {"from": "client or mm", "text": "exact or close quote from the conversation"}
+      ],
+      "best": "A casual, warm, friendly best-reply template the matchmaker SHOULD have sent. Use contractions, short sentences, light humor. No corporate language. Max 3-4 sentences.",
+      "reasoning": [
+        {"label": "Short label", "text": "Why this element of the reply matters", "bg": "#hex", "c": "#hex"}
+      ],
+      "perspectives": [
+        {"tag": "Client Name", "type": "client", "text": "How the client experienced this moment"},
+        {"tag": "Matchmaker", "type": "mm", "text": "What the matchmaker should have done differently"},
+        {"tag": "Pattern", "type": "pattern", "text": "If this pattern appears with other clients in a matchmaking service, what systemic issue does it reveal?"}
+      ],
+      "scenarios": [
+        {"type": "best", "label": "If handled perfectly from the start", "text": "What would have happened"},
+        {"type": "worst", "label": "If client was less patient", "text": "How it could have escalated"},
+        {"type": "alt", "label": "If a different personality type experienced this", "text": "How another client type would have reacted"}
+      ]
+    }
+  ]
+}
+
+Rules:
+- Extract 3-6 key moments (problems, missed opportunities, communication gaps, good moments that could be elevated)
+- For thread: include 3-6 actual messages that show the core of the moment
+- For reasoning: use bg/c colors: danger=#ffebee/#c62828, warning=#fff8e1/#e65100, success=#e8f5e9/#2e7d32, info=#e3f2fd/#0d47a1
+- Make best replies casual and warm, never corporate
+- matches status: great=mutual positive outcome, pending=scheduled/in progress, confirmed=locked in, dropped=cancelled/no match
+- Focus on moments where communication failed, dealbreakers were ignored, coordination broke down, or feedback wasn't used as calibration data
+- Return ONLY the JSON object, nothing else`;
+
+  try {
+    const rawText = await callClaude([{ role: 'user', content: prompt }], 4000);
+    let jsonStr = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const client = JSON.parse(jsonStr);
+    client.id = 'c_' + Date.now();
+    client.av = AVATAR_CLASSES[avatarIndex % AVATAR_CLASSES.length];
+    avatarIndex++;
+    clients.push(client);
+    activeClientId = client.id;
+    closeModal();
+    renderAll();
+    renderDetail(client.id);
+  } catch (err) {
+    const isAuthErr = err.message.includes('401') || err.message.toLowerCase().includes('api key') || err.message.toLowerCase().includes('authentication');
+    document.getElementById('modalInner').innerHTML = `
+      <div class="modal-body">
+        <div style="background:#fff5f5;border:1px solid #f0b8b8;border-radius:8px;padding:14px;font-size:13px;color:#c62828;margin-bottom:12px;">
+          <strong>${isAuthErr ? 'Invalid API key.' : 'Analysis failed.'}</strong>
+          ${isAuthErr ? ' Your API key was rejected. Click Change API key below.' : ' Connection issue — if opening as a local file, try a simple server (python3 -m http.server). See details below.'}
+          <details style="margin-top:8px"><summary style="cursor:pointer;font-size:11px">Technical details</summary><pre style="font-size:10px;margin-top:4px;word-break:break-all;white-space:pre-wrap">${err.message}</pre></details>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="closeModal()">Close</button>
+        ${isAuthErr
+          ? '<button class=\"btn-sm primary\" onclick=\"closeModal();resetApiKey()\">Change API key</button>'
+          : '<button class=\"btn-sm primary\" onclick=\"renderModalDefault()\">Try again</button>'}
+      </div>`;
+  }
+}
+
+// ─── SEARCH ──────────────────────────────────────────────────────────────────
+function doSearch(v) {
+  searchQuery = v.toLowerCase();
+  renderSidebar();
+  if (activeClientId) renderDetail(activeClientId);
+}
+
+function hl(t) {
+  if (!searchQuery || !t) return t || '';
+  const re = new RegExp('(' + searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return t.replace(re, '<mark>$1</mark>');
+}
+
+function clientMatches(c) {
+  if (!searchQuery) return true;
+  const blob = [
+    c.name, c.matchmaker, c.info,
+    ...c.matches.map(m => m.name),
+    ...c.moments.flatMap(m => [
+      m.title, m.best,
+      ...(m.thread || []).map(t => t.text),
+      ...m.reasoning.map(r => r.text),
+      ...m.perspectives.map(p => p.text),
+      ...(m.scenarios || []).map(s => s.text)
+    ])
+  ].join(' ').toLowerCase();
+  return blob.includes(searchQuery);
+}
+
+// ─── RENDER SIDEBAR ──────────────────────────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('clientList');
+  const visible = clients.filter(clientMatches);
+
+  if (!visible.length && clients.length > 0) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No clients match "${searchQuery}"</div>`;
+    return;
+  }
+  if (!clients.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No clients yet. Paste a conversation to get started.</div>`;
+    return;
+  }
+
+  list.innerHTML = visible.map(c => `
+    <div class="client-item ${activeClientId === c.id ? 'active' : ''}" onclick="selectClient('${c.id}')">
+      <div class="ci-avatar ${c.av}">${c.initials || c.name.substring(0, 2).toUpperCase()}</div>
+      <div class="ci-meta">
+        <div class="ci-name">${hl(c.name)}</div>
+        <div class="ci-sub">${c.matchmaker || ''}</div>
+      </div>
+      <span class="ci-badge badge-${c.status || 'active'}">${c.status || 'Active'}</span>
+    </div>
+  `).join('');
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('statTotal').textContent = clients.length;
+  document.getElementById('statActive').textContent = clients.filter(c => (c.status || 'active') === 'active').length;
+  document.getElementById('statPending').textContent = clients.reduce((sum, c) => sum + (c.matches || []).filter(m => m.status === 'pending' || m.status === 'confirmed').length, 0);
+  document.getElementById('statReplies').textContent = clients.reduce((sum, c) => sum + (c.moments || []).length, 0);
+}
+
+// ─── SELECT CLIENT ──────────────────────────────────────────────────────────
+function selectClient(id) {
+  activeClientId = id;
+  renderSidebar();
+  renderDetail(id);
+  if (showCompare) { showCompare = false; document.getElementById('comparePanel').style.display = 'none'; }
+}
+
+// ─── RENDER DETAIL ───────────────────────────────────────────────────────────
+function renderDetail(id) {
+  const c = clients.find(x => x.id === id);
+  if (!c) return;
+
+  const pane = document.getElementById('detailPane');
+
+  const matchChips = (c.matches || []).map(m =>
+    `<span class="match-chip ${m.status || ''}">${hl(m.name)}</span>`
+  ).join('');
+
+  const momentsHTML = (c.moments || []).map((m, i) => {
+    const isOpen = openMoments.has(m.id || i);
+    const mid = m.id || `${id}_m${i}`;
+    const tab = openTabs[mid] || 'convo';
+
+    let tabContent = '';
+    if (tab === 'convo') {
+      const bubbles = (m.thread || []).map(msg => {
+        const isClient = msg.from === 'client';
+        return `<div class="msg-wrap" style="align-items:${isClient ? 'flex-end' : 'flex-start'}">
+          <div class="msg-label" style="text-align:${isClient ? 'right' : 'left'}">${isClient ? 'Client' : 'Matchmaker'}</div>
+          <div class="msg-bubble ${isClient ? 'msg-client' : 'msg-mm'}">${hl((msg.text || '').replace(/\n/g, '<br>'))}</div>
+        </div>`;
+      }).join('');
+      tabContent = `<div class="msg-thread">${bubbles}</div>`;
+    } else if (tab === 'reply') {
+      const rHTML = (m.reasoning || []).map(r =>
+        `<div class="reason-pill" style="background:${r.bg};color:${r.c}"><strong>${r.label || r.l}</strong>${r.text || r.t}</div>`
+      ).join('');
+      tabContent = `
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--green);margin-bottom:6px">Best reply</div>
+        <div class="reply-box">${hl(m.best)}</div>
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:10px 0 6px">Reasoning</div>
+        <div class="reasoning-row">${rHTML}</div>`;
+    } else if (tab === 'persp') {
+      const pHTML = (m.perspectives || []).map(p =>
+        `<div class="persp-item"><span class="persp-tag tag-${p.type}">${p.tag}</span><span class="persp-text">${hl(p.text)}</span></div>`
+      ).join('');
+      tabContent = `<div class="persp-row">${pHTML}</div>`;
+    } else if (tab === 'scenarios') {
+      const sHTML = (m.scenarios || []).map(s =>
+        `<div class="scenario-item scenario-${s.type}"><strong>${s.label}</strong>${hl(s.text)}</div>`
+      ).join('');
+      tabContent = `<div class="scenario-row">${sHTML}</div>`;
+    }
+
+    return `
+      <div class="moment-card">
+        <div class="moment-header" onclick="toggleMoment('${mid}')">
+          <div class="moment-num">${i + 1}</div>
+          <div class="moment-title">${hl(m.title)}</div>
+          <div class="moment-date">${m.date || ''}</div>
+          <div class="moment-chevron ${isOpen ? 'open' : ''}">›</div>
+        </div>
+        ${isOpen ? `
+        <div class="moment-body">
+          <div class="tab-row">
+            <button class="tab-btn ${tab === 'convo' ? 'active' : ''}" onclick="setTab('${mid}','convo')">Conversation</button>
+            <button class="tab-btn ${tab === 'reply' ? 'active' : ''}" onclick="setTab('${mid}','reply')">Best reply</button>
+            <button class="tab-btn ${tab === 'persp' ? 'active' : ''}" onclick="setTab('${mid}','persp')">Perspectives</button>
+            <button class="tab-btn ${tab === 'scenarios' ? 'active' : ''}" onclick="setTab('${mid}','scenarios')">Scenarios</button>
+          </div>
+          ${tabContent}
+        </div>` : ''}
+      </div>`;
+  }).join('');
+
+  pane.innerHTML = `
+    <div class="client-detail">
+      <div class="detail-header">
+        <div class="detail-avatar ${c.av}">${c.initials || c.name.substring(0, 2).toUpperCase()}</div>
+        <div class="detail-meta">
+          <div class="detail-name">${c.name}</div>
+          <div class="detail-sub">${c.matchmaker || ''} · Since ${c.startDate || 'unknown'}</div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn-sm" onclick="removeClient('${id}')">Remove</button>
+          <button class="btn-sm primary">Export ↗</button>
+        </div>
+      </div>
+      ${c.alert ? `<div class="alert-banner"><strong>Alert:</strong> ${c.alert}</div>` : ''}
+      ${c.info ? `<div class="info-banner">${c.info}</div>` : ''}
+      <div class="section-label">Match history</div>
+      <div class="matches-row">${matchChips || '<span style="font-size:12px;color:var(--text3)">No matches recorded yet</span>'}</div>
+      <div class="section-label" style="margin-top:4px">Key moments</div>
+      ${momentsHTML || '<div style="font-size:13px;color:var(--text3);padding:12px 0">No moments extracted yet.</div>'}
+    </div>`;
+}
+
+function toggleMoment(mid) {
+  if (openMoments.has(mid)) openMoments.delete(mid);
+  else openMoments.add(mid);
+  if (activeClientId) renderDetail(activeClientId);
+}
+
+function setTab(mid, tab) {
+  openTabs[mid] = tab;
+  if (activeClientId) renderDetail(activeClientId);
+}
+
+function removeClient(id) {
+  if (!confirm('Remove this client from the hub?')) return;
+  clients = clients.filter(c => c.id !== id);
+  if (activeClientId === id) {
+    activeClientId = clients.length ? clients[0].id : null;
+  }
+  renderAll();
+  if (activeClientId) renderDetail(activeClientId);
+  else document.getElementById('detailPane').innerHTML = `<div class="empty-main"><div class="empty-icon">🌹</div><h2>No clients yet</h2><p>Add a client by pasting a conversation thread.</p></div>`;
+}
+
+// ─── COMPARE ─────────────────────────────────────────────────────────────────
+async function toggleCompare() {
+  showCompare = !showCompare;
+  const panel = document.getElementById('comparePanel');
+
+  if (!showCompare) {
+    panel.style.display = 'none';
+    return;
+  }
+  if (clients.length < 2) {
+    alert('Add at least 2 clients to compare them.');
+    showCompare = false;
+    return;
+  }
+
+  panel.style.display = 'block';
+  panel.innerHTML = `<div class="compare-panel"><div style="display:flex;align-items:center;gap:12px"><div class="spinner"></div><span style="font-size:14px;color:var(--purple)">Generating cross-client analysis…</span></div></div>`;
+  panel.scrollIntoView({ behavior: 'smooth' });
+
+  const summary = clients.map(c => `
+CLIENT: ${c.name}
+Status: ${c.status}
+Matchmaker: ${c.matchmaker}
+Profile: ${c.info}
+Matches: ${(c.matches || []).map(m => m.name + ' (' + m.status + ')').join(', ')}
+Key moments: ${(c.moments || []).map(m => m.title).join('; ')}
+  `).join('\n---\n');
+
+  const prompt = `You are analyzing multiple matchmaking clients. Return ONLY valid JSON, no markdown.
+
+Clients:
+${summary.substring(0, 8000)}
+
+Return this exact JSON:
+{
+  "patterns": [
+    {"color": "#hex", "text": "systemic pattern across multiple clients"}
+  ],
+  "risks": [
+    {"name": "client name", "level": "high|med|low", "reason": "brief reason"}
+  ],
+  "frustrationStyles": [
+    {"name": "client name", "color": "#hex", "text": "how this client handles frustration and what to watch for"}
+  ],
+  "recommendations": [
+    "Concrete recommendation for the matchmaking team based on patterns seen"
+  ]
+}
+
+Include 4-6 patterns, all clients in risks/frustrationStyles, and 4-5 recommendations. Be specific to what you actually see in these clients.`;
+
+  try {
+    const rawText = await callClaude([{ role: 'user', content: prompt }], 2000);
+    const raw = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const cmp = JSON.parse(raw);
+
+    const patternsHTML = (cmp.patterns || []).map(p =>
+      `<div class="pattern-item"><div class="pattern-dot" style="background:${p.color}"></div><div class="pattern-text">${p.text}</div></div>`
+    ).join('');
+
+    const risksHTML = (cmp.risks || []).map(r =>
+      `<span class="risk-chip risk-${r.level}">${r.name}${r.reason ? ' — ' + r.reason : ''}</span>`
+    ).join('');
+
+    const styleHTML = (cmp.frustrationStyles || []).map(s =>
+      `<div class="pattern-item"><div class="pattern-dot" style="background:${s.color}"></div><div class="pattern-text"><strong>${s.name}:</strong> ${s.text}</div></div>`
+    ).join('');
+
+    const recsHTML = (cmp.recommendations || []).map((r, i) =>
+      `<div class="rec-item">${i + 1}. ${r}</div>`
+    ).join('');
+
+    panel.innerHTML = `
+      <div class="compare-panel">
+        <h3>Cross-client comparison — ${clients.length} clients</h3>
+        <div class="compare-section"><h4>Systemic patterns</h4>${patternsHTML}</div>
+        <div class="compare-section"><h4>Churn risk ranking</h4><div class="risk-chips">${risksHTML}</div></div>
+        <div class="compare-section"><h4>How each client handles frustration</h4>${styleHTML}</div>
+        <div class="compare-section"><h4>Recommendations for the team</h4><div class="rec-list">${recsHTML}</div></div>
+        <div style="text-align:right;margin-top:12px"><button class="btn-sm" onclick="toggleCompare()">Close comparison</button></div>
+      </div>`;
+  } catch (err) {
+    panel.innerHTML = `<div class="compare-panel" style="background:var(--danger-bg);border-color:#f0b8b8;"><p style="color:var(--danger);font-size:13px">Could not generate comparison: ${err.message}</p><button class="btn-sm" style="margin-top:10px" onclick="toggleCompare()">Close</button></div>`;
+  }
+}
+
+// ─── RENDER ALL ───────────────────────────────────────────────────────────────
+function renderAll() {
+  renderSidebar();
+  updateStats();
+}
+</script>
+</body>
+</html>
